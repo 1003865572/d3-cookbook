@@ -12,8 +12,25 @@
 <p id="target"></p> <!-- A -->
 
 <script type="text/javascript">
-    d3.select("p#target") // <-- B
-        .text("Hello world!"); // <-- C
+  var p = d3.select('#target')
+  p.text('hello world').attr('style','font-size:24px')
+
+  // attr 读取 设置
+  p.attr('foo', 'goo')
+  console.info(p.attr('foo'))
+
+  // classed 是否设置  添加 移除
+  console.info(p.classed('goo'))
+  p.classed('goo', true)
+  p.classed('goo', false)
+  p.classed('goo', function() {
+    return true
+  })
+
+  // style 读取 设置 动态改变
+
+  
+
 </script>
 
 </body>
