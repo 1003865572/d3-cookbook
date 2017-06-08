@@ -37,19 +37,23 @@
 </table>
 
 <script type="text/javascript">
-    var rows = d3.selectAll("tr"); // <-- A
+  var rows = d3.selectAll('tr');
+  var headerElement = rows[0][0]
+  console.info(rows[0]) // selectAll 的返回值是 集合 所以第一个 0 下标拿到的是 tr 的集合
+  console.info(rows[0][0])    // 第一行 tr
+  rows[0].map(function(d, i) {
+    d = d3.select(d)
+    if (i === 0) {
+      d.attr('class', 'table-header')
+    }else{
+      if (i % 2 == 0) {
+        d.attr('class', 'table-row-even')
+      } else {
+        d.attr('class','table-row-odd')
+      }
+    }
+  })
 
-    var headerElement = rows[0][0]; // <-- B
-    console.log("headerElement is an instance of DOM Element: " 
-        + (headerElement instanceof Element));
-
-    d3.select(headerElement).attr("class", "table-header"); // <-- C
-    console.log("d3.select(headerElement) is an instanceof of d3.selection: " 
-        + (d3.select(headerElement) instanceof d3.selection));
-
-    d3.select(rows[0][1]).attr("class", "table-row-odd"); // <-- D
-    d3.select(rows[0][2]).attr("class", "table-row-even"); // <-- E
-    d3.select(rows[0][3]).attr("class", "table-row-odd"); // <-- F
 </script>
 
 </body>

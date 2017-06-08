@@ -21,12 +21,11 @@
 </section>
 
 <script type="text/javascript">
-    d3.select("#section1 > div") // <-- A
-            .attr("class", "blue box");
+  d3.select('#section1 > div').attr('class', 'blue box')
 
-    d3.select("#section2") // <-- B
-            .select("div") // <-- C
-            .attr("class", "red box");
+  d3.select('#section2').select('div').attr('class', 'red box')
+
+  d3.select('#section2').style('font-size', '2em').select('div').attr('class', 'red box')
 </script>
 
 </body>
