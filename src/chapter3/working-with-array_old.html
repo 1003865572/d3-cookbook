@@ -54,31 +54,20 @@
 <script type="text/javascript">
     var array = [3, 2, 11, 7, 6, 4, 10, 8, 15];
 
-    // 找到数组中最小的值
-    d3.select('#min').text(d3.min(array))
-    // 最大的
-    d3.select('#max').text(d3.max(array))
-    // 平均值
-    d3.select('#extent').text(d3.extent(array))
-    // 数组之和
-    d3.select('#sum').text(d3.sum(array))
-    // 返回所有值中最接近中间值的元素 这里返回7
-    d3.select('#median').text(d3.median(array))
-    // 返回数组之和的平均值 这里返回7.33
-    d3.select('#mean').text(d3.mean(array))
-    // 正序
-    d3.select('#asc').text(array.sort(d3.ascending))
-    // 倒叙
-    d3.select('#desc').text(array.sort(d3.descending))
-
-    d3.select('#quantile').text(
-      d3.quantile(array.sort(d3.ascending), 0.25)
-    )
-
-    // 返回插入点之前的元素
-    d3.select('#bisect').text(
-      d3.bisect(array.sort(d3.ascending), 6)
-    )
+    d3.select("#min").text(d3.min(array));
+    d3.select("#max").text(d3.max(array));
+    d3.select("#extent").text(d3.extent(array));
+    d3.select("#sum").text(d3.sum(array));
+    d3.select("#median").text(d3.median(array));
+    d3.select("#mean").text(d3.mean(array));
+    d3.select("#asc").text(array.sort(d3.ascending));
+    d3.select("#desc").text(array.sort(d3.descending));
+    d3.select("#quantile").text(
+        d3.quantile(array.sort(d3.ascending), 0.25)
+    );
+    d3.select("#bisect").text(
+        d3.bisect(array.sort(d3.ascending), 6)
+    );
 
     var records = [
         {quantity: 2, total: 190, tip: 100, type: "tab"},
@@ -96,46 +85,44 @@
     ];
 
     var nest = d3.nest()
-      .key(function (d) {
-        return d.type
-      })
-      .key(function(d) {
-        return d.tip
-      })
-      .entries(records)
+            .key(function (d) { // <- A
+                return d.type;
+            })
+            .key(function (d) { // <- B
+                return d.tip;
+            })
+            .entries(records); // <- C
 
-      d3.select("#nest").html(printNest(nest, ""));
+    d3.select("#nest").html(printNest(nest, ""));
 
-      function printNest(nest, out, i) {
-        debugger
-          if(i === undefined) i = 0;
+    function printNest(nest, out, i) {
+        if(i === undefined) i = 0;
 
-          var tab = ""; for(var j = 0; j < i; ++j) tab += " ";
+        var tab = ""; for(var j = 0; j < i; ++j) tab += " ";
 
-          nest.forEach(function (e) {
-              if (e.key)
-                  out += tab + e.key + "<br>";
-              else
-                  out += tab + printObject(e) + "<br>";
+        nest.forEach(function (e) {
+            if (e.key)
+                out += tab + e.key + "<br>";
+            else
+                out += tab + printObject(e) + "<br>";
 
-              if (e.values)
-                  out = printNest(e.values, out, ++i);
-              else
-                  return out;
-          });
+            if (e.values)
+                out = printNest(e.values, out, ++i);
+            else
+                return out;
+        });
 
-          return out;
-      }
+        return out;
+    }
 
-      function printObject(obj) {
-          var s = "{";
-          for (var f in obj) {
-              s += f + ": " + obj[f] + ", ";
-          }
-          s += "}";
-          return s;
-      }
-
+    function printObject(obj) {
+        var s = "{";
+        for (var f in obj) {
+            s += f + ": " + obj[f] + ", ";
+        }
+        s += "}";
+        return s;
+    }
 </script>
 
 </body>
