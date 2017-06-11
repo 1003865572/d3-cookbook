@@ -1,0 +1,66 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <meta charset="utf-8">
+    <title>Array as Data</title>
+    <link rel="stylesheet" type="text/css" href="../../css/styles.css"/>
+    <script type="text/javascript" src="../../lib/d3.js"></script>
+</head>
+
+<body>
+
+<script type="text/javascript">
+    var data = [10, 15, 30, 50, 80, 65, 55, 30, 20, 10, 8]; // <- A
+
+    function render(data) {
+
+      /*
+        enter 得到的是
+        未和数据相交的 图形部分
+
+        update  图形和数据相交的部分
+
+        exit 图形和数据的差
+          数组删除了数据，但是图形还在。需要处理这些数据已经被删除但是节点没删除的图形
+
+      */
+
+
+      // 进入
+      d3.select('body').selectAll('div.h-bar')
+        .data(data)
+        .enter()      //返回没有被 数据覆盖的部分，这部分可以被渲染为节点
+        .append('div')
+        .attr('class', 'h-bar')
+        .append('span')
+      // 更新
+      d3.select('body').selectAll('div.h-bar')
+        .data(data)
+        .style('width', function(d) {
+          return (d * 3) + 'px';
+        })
+        .select('span')
+        .text(function(d) {
+          return d
+        })
+      // // 退出
+      d3.select('body').selectAll('div.h-bar')
+        .data(data)
+        .exit()
+        .remove();
+    }
+
+    setInterval(function(){
+      data.shift();
+      data.push(Math.round(Math.random() * 100));
+
+      render(data);
+    }, 1000)
+
+    render(data);
+
+</script>
+
+</body>
+
+</html>

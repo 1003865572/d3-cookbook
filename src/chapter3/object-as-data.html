@@ -18,48 +18,48 @@
         {width: 20, color: 60},{width: 10, color: 90},
         {width: 8, color: 10}
     ];
-    
-    var colorScale = d3.scale.linear()
-        .domain([0, 100])
-        .range(["#add8e6", "blue"]); // <- B
+
+    // 根据颜色的比例取范围值
+    var colorScale = d3.scale.linear().domain([0, 100]).range(['#add8e6', 'blue'])
 
     function render(data) {
-        d3.select("body").selectAll("div.h-bar")
-            .data(data)
-            .enter().append("div")
-                .attr("class", "h-bar")                
-            .append("span");
-
-        d3.select("body").selectAll("div.h-bar")
-            .data(data)
-            .exit().remove();
-
-        d3.select("body").selectAll("div.h-bar")
-            .data(data)
-                .attr("class", "h-bar")
-                .style("width", function (d) { // <- C
-                    return (d.width * 5) + "px"; // <- D
-                })
-                .style("background-color", function(d){
-                    return colorScale(d.color); // <- E
-                })
-            .select("span")
-                .text(function (d) {
-                    return d.width; // <- F
-                });
+      // 进入
+      d3.select('body').selectAll('div.h-bar')
+        .data(data).enter()
+        .append('div').attr('class', 'h-bar')
+        .append('span');
+      // 退出
+      d3.select('body').selectAll('div.h-bar')
+        .data(data)
+        .exit().remove()
+      // 更新
+      d3.select('body').selectAll('div.h-bar')
+        .data(data)
+        .attr('class','h-bar')
+        .style('width', function(d) {
+          return (d.width * 5) + 'px'
+        })
+        .style('background', function(d) {
+          return colorScale(d.color)
+        })
+        .select('span')
+        .text(function(d) {
+          return d.width
+        })
     }
 
     function randomValue() {
-        return Math.round(Math.random() * 100);
+      return Math.round(Math.random() * 100)
     }
 
-    setInterval(function () {
-        data.shift();
-        data.push({width: randomValue(), color: randomValue()});
-        render(data);
-    }, 1500);
+    setInterval(function() {
+      data.shift()
+      data.push({ width: randomValue(), color: randomValue() })
+      render(data)
+    }, 500)
 
-    render(data);
+    render(data)
+
 </script>
 
 </body>
