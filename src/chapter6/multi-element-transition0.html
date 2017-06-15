@@ -1,0 +1,84 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <meta charset="utf-8">
+    <title>Multi-Element Transition</title>
+    <link rel="stylesheet" type="text/css" href="../../css/styles.css"/>
+    <script type="text/javascript" src="../../lib/d3.js"></script>
+</head>
+
+<body>
+
+<script type="text/javascript">
+
+    var id = 0,
+        data = [],
+        duration = 500,
+        chartHeight = 100,
+        chartWidth = 680;
+    for(var i = 0; i < 15; i++) {
+      push(data)
+    }
+    function push(data) {
+      data.push({
+        id: ++id,
+        value: Math.round(Math.random() * chartHeight)
+      })
+    }
+
+    function barLeft(i) {
+        return i * (30 + 2);
+    }
+
+    function barHeight(d) {
+        return d.value;
+    }
+    function render() {
+
+      var selection = d3.select('body').selectAll('div.v-bar').data(data, function(d) { return d.id })
+
+      selection.enter()
+                .append('div')
+                .attr({ 'class': 'v-bar' })
+                .style({
+                  'position': 'fixed',
+                  'top': chartHeight + 'px',
+                  'left': function(d, i) {
+                      return barLeft(i+1) +'px'
+                  },
+                  'height': 0
+                })
+                .append('span')
+
+      selection.transition()
+                .duration(duration)
+                .style({
+                  top: function(d) { return chartHeight - barHeight(d) + 'px' },
+                  height: function(d) {return barHeight(d) + 'px'},
+                  left: function(d, i) { return barLeft(i) + "px"}
+                })
+                .select('span')
+                .text(function(d) {
+                  return d.value
+                })
+
+      selection.exit()
+        .transition()
+        .duration(duration)
+        .style({
+          left: function(d, i) { return barLeft(i-1) + 'px' }
+        }).remove()
+    }
+
+    setInterval(function () {
+      data.shift()
+      push(data)
+      render(data)
+    }, 1000)
+
+
+</script>
+
+</body>
+
+</html>

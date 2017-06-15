@@ -1,0 +1,169 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1, user-scalable=0" />
+    <title>Areas</title>
+    <script type="text/javascript" src="http://wechatfe.github.io/vconsole/lib/vconsole.min.js?v=2.5.2" ></script>
+    <link rel="stylesheet" type="text/css" href="../../css/styles.css"/>
+    <script type="text/javascript" src="../../lib/d3.js"></script>
+    <style>
+      .line{
+        stroke-width: 1;
+      }
+      .line2{
+        fill: none;
+        stroke: #000;
+        stroke-width: 1;
+      }
+      .area2{
+        fill: #666 !important;
+      }
+      .area{
+        fill: red
+      }
+      *{
+        margin: 0;
+        padding: 0;
+      }
+    </style>
+</head>
+
+<body>
+
+<script type="text/javascript">
+/**/
+    var depthMap = {
+        key: 'orders',
+        data: {
+          bids:[{'200.01':'0'},{'199.00':'0.0000'},{'198.00':'3.0000'},{'197.00':'4.0000'},{'196.00':'5.0000'},{'195.00':'600.0000'},{'194.00':'7.0000'},{'193.00':'8.0000'},{'192.00':'9.0000'},{'191.00':'10.0000'},{'190.00':'11.0000'},{'189.00':'12.0000'},{'188.00':'13.0000'},{'187.00':'14.0000'},{'186.00':'15.0000'},{'185.00':'16.0000'},{'184.00':'17.0000'},{'183.00':'18.0000'},{'182.00':'19.0000'},{'181.00':'20.0000'},{'180.00':'21.0000'}],
+          asks:[{'201.01':'0'},{'202.00':'50.0000'},{'203.00':'22.0000'},{'204.00':'23.0000'},{'205.00':'24.0000'},{'206.00':'25.0000'},{'207.00':'26.0000'},{'208.00':'27.0000'},{'209.00':'28.0000'},{'210.00':'29.0000'},{'211.00':'30.0000'},{'212.00':'31.0000'},{'213.00':'32.0000'},{'214.00':'33.0000'},{'215.00':'34.0000'},{'216.00':'35.0000'},{'217.00':'36.0000'},{'218.00':'37.0000'},{'219.00':'38.0000'},{'220.00':'39.0000'}]
+        }
+      }
+    //范围
+    var asks = depthMap.data.asks
+    var bids = depthMap.data.bids
+    var obj = {
+      prices: [],
+      asks: [],
+      bids: []
+    }
+
+    var num = 0;
+    bids.reverse().map(function (item) {
+      var price = parseFloat(Object.keys(item)[0])
+      var volume = parseFloat(item[Object.keys(item)])
+      obj.prices.push(price)
+      num += volume
+      obj.bids.unshift(num)
+      obj.asks.push(0)
+    })
+    num = 0;
+    asks.map(function (item) {
+      var price = parseFloat(Object.keys(item)[0])
+      var volume = parseFloat(item[Object.keys(item)])
+      obj.prices.push(price)
+      num += volume
+      obj.asks.push(num)
+      obj.bids.push(0)
+    })
+    console.info(obj)
+    console.info('最小值：'+ d3.min(obj.prices) )
+    console.info('最大值：'+ d3.max(obj.prices) )
+
+
+    var width = document.body.clientWidth,
+        height = 150,
+        margin = 10,
+        marginLet = 20,
+        duration = 500,
+        x = d3.scale.linear()
+              .domain([0, width ])
+              .range([ 0, width - marginLet * 2 ])
+        y = d3.scale.linear()
+              .domain([d3.min(obj.prices), d3.max(obj.prices)])
+              .range([ height - margin * 2, margin ])
+
+    // 创建svg对象
+    var svg = d3.select('body').append('svg')
+                  .attr({ width: width, height: height })
+                  .style("border-bottom",'1px solid #ccc')
+
+
+    var scale_x = d3.scale.linear()
+        .domain([d3.min(obj.prices), d3.max(obj.prices) ])// 输出
+        .range([marginLet, width-marginLet])   // 输入
+
+    var scale_y = d3.scale.linear()
+        .domain([0, d3.max(obj.asks) > d3.max(obj.bids) ? d3.max(obj.asks) : d3.max(obj.bids)])
+        .range([height - margin * 2, 10])
+
+    var line = d3.svg.line()
+                .x(function (d, i) {
+                  return scale_x(obj.prices[i])
+                })
+                .y(function (d) {
+                  return scale_y(d)
+                })
+
+    var area = d3.svg.area()
+              .x(function(d, i) {
+                return scale_x(obj.prices[i])
+              })
+              .y0(height - margin * 2)
+              .y1(function(d) {
+                return scale_y(d)
+              })
+
+    svg.selectAll('path.line')
+        .data([obj.asks])
+        .enter()
+        .append('path')
+        .attr('class', 'line')
+        .attr('d', function(d) { return line(d) })
+
+
+    svg.selectAll('path.line2')
+      .data([obj.bids])
+      .enter()
+      .append('path').attr('class', 'line2')
+      .attr('d', function(d) {return line(d)})
+
+    svg.selectAll("path.area")
+        .data([obj.asks])
+        .enter()
+        .append("path")
+        .attr("class", "area")
+        .attr('d', function(d) { return area(d) })
+
+    svg.selectAll('path.area2')
+        .data([obj.bids])
+        .enter()
+        .append('path')
+        .attr({
+          class: 'area area2',
+          d: function(d) {return  area(d)}
+        })
+
+
+      //标尺
+      var xAxisScale = d3.scale.linear()
+          .domain([d3.min(obj.prices), d3.max(obj.prices) ])  // 输出
+          .range([0, width - 2*marginLet])   // 输入
+
+      var xAxis = d3.svg.axis().scale(xAxisScale).orient('bottom')
+
+      svg.append('g')
+          .attr({
+            class: 'axis',
+            transform: function () {
+              return 'translate('+ marginLet +', '+ (height-margin * 2) +')'
+            }
+          })
+          .call(xAxis)
+
+</script>
+
+</body>
+
+</html>

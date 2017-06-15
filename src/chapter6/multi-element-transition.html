@@ -10,13 +10,13 @@
 <body>
 
 <script type="text/javascript">
-    var id= 0, 
-        data = [], 
-        duration = 500, 
-        chartHeight = 100, 
+    var id= 0,
+        data = [],
+        duration = 500,
+        chartHeight = 100,
         chartWidth = 680;
 
-    for(var i = 0; i < 20; i++) push(data);   
+    for(var i = 0; i < 20; i++) push(data);
 
     function render(data) {
         var selection = d3.select("body")
@@ -38,14 +38,14 @@
         // update
         selection
             .transition().duration(duration) // <-D
-                .style("top", function (d) { 
-                    return chartHeight - barHeight(d) + "px"; 
+                .style("top", function (d) {
+                    return chartHeight - barHeight(d) + "px";
                 })
                 .style("left", function(d, i){
                     return barLeft(i) + "px";
                 })
-                .style("height", function (d) { 
-                    return barHeight(d) + "px"; 
+                .style("height", function (d) {
+                    return barHeight(d) + "px";
                 })
                 .select("span")
                     .text(function (d) {return d.value;});
@@ -61,11 +61,11 @@
 
     function push(data) {
         data.push({
-            id: ++id, 
+            id: ++id,
             value: Math.round(Math.random() * chartHeight)
         });
     }
-    
+
     function barLeft(i) {
         return i * (30 + 2);
     }

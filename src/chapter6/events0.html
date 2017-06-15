@@ -19,13 +19,13 @@
             .text("waiting") // <-A
         .transition().duration(duration) // <-B
                 .delay(1000) // <-C
-                .each("start", function(){ // <-D
+                .each("end", function(){ // <-D
                     console.log(arguments);
                     d3.select(this).text(function (d, i) {
                         return "transitioning";
                     });
                 })
-                .each("end", function(){ // <-E
+                .each("start", function(){ // <-E
                     d3.select(this).text(function (d, i) {
                         return "done";
                     });

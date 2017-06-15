@@ -1,0 +1,30 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <meta charset="utf-8">
+    <title>Single Element Transition</title>
+    <link rel="stylesheet" type="text/css" href="../../css/styles.css"/>
+    <script type="text/javascript" src="../../lib/d3.js"></script>
+</head>
+
+<body>
+
+<script type="text/javascript">
+    var body = d3.select('body'),
+            duration = 500;
+        body.append('div')
+              .attr('class', 'box')
+              .style({ background: '#e9967a' })
+              .transition()
+               .duration(duration)
+              .style({
+                width: '100px',
+                height: '100px',
+                'margin-left': '600px',
+                'background-color': '#add8e6'
+              })
+</script>
+
+</body>
+
+</html>

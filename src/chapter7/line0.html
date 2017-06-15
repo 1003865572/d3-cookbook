@@ -1,0 +1,83 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <meta charset="utf-8">
+    <title>Lines</title>
+    <link rel="stylesheet" type="text/css" href="../../css/styles.css"/>
+    <script type="text/javascript" src="../../lib/d3.js"></script>
+</head>
+
+<body>
+
+<script type="text/javascript">
+  var width = 500,
+      height = 500,
+      margin = 25,
+      x = d3.scale.linear().domain([0, 10]).range([margin, width - margin]),
+      y = d3.scale.linear().domain([0, 10]).range([margin, height - margin]);
+
+      var data = [ // <-C
+          [
+              {x: 0, y: 5},{x: 1, y: 9},{x: 2, y: 7},
+              {x: 3, y: 5},{x: 4, y: 3},{x: 6, y: 4},
+              {x: 7, y: 2},{x: 8, y: 3},{x: 9, y: 2}
+          ],
+
+          d3.range(10).map(function(i){
+              return {x: i, y: Math.sin(i) + 5};
+          })
+      ];
+
+
+      var svg = d3.select('body').append('svg').style({ width: width, height: height })
+
+      var line = d3.svg.line() // <-D
+      .x(function(d){return x(d.x);})
+      .y(function(d){return y(d.y);});
+
+      svg.selectAll('path')
+        .data(data)
+        .enter()
+        .append('path')
+        .attr({
+          'class': 'line',
+          d: function(d) {
+            return line(d)
+          }
+        })
+
+      renderAxes(svg)
+
+      function renderAxes (svg) {
+        var xAxis = d3.svg.axis()
+                    .scale(x)
+                    .orient('bottom');
+        var yAxis = d3.svg.axis()
+                    .scale(y)
+                    .orient('left')
+
+        svg.append('g')
+              .attr('class', 'axis')
+              .attr('transform', function() {
+                return 'translate('+ 0 +' , '+ (height - margin) +')'
+              })
+              .call(xAxis)
+
+        svg.append('g')
+              .attr('class', 'axis')
+                .attr('transform', function() {
+                  return 'translate('+margin+',0)'
+                })
+                .call(yAxis)
+      }
+
+      function quadrantWidth () {
+        return width - 2*margin
+      }
+
+
+</script>
+
+</body>
+
+</html>

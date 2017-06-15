@@ -2,7 +2,7 @@
 <html>
 <head>
     <meta charset="utf-8">
-    <meta name="viewport" content="initial-scale=1,maximum-scale=1"/>
+    <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1, user-scalable=0" />
     <title>Zoom & Pan</title>
     <link rel="stylesheet" type="text/css" href="../../css/styles.css"/>
     <script type="text/javascript" src="../../lib/d3.js"></script>
@@ -11,7 +11,7 @@
         svg {
             border: 1px solid black;
         }
-    
+
         circle {
             fill: #dc143c;
         }
@@ -50,8 +50,8 @@
             });
 
     function zoom() {
-        svg.attr("transform", "translate(" 
-            + d3.event.translate 
+        svg.attr("transform", "translate("
+            + d3.event.translate
             + ")scale(" + d3.event.scale + ")");
     }
 </script>
