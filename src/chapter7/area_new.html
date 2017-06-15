@@ -10,17 +10,21 @@
     <style>
       .line{
         stroke-width: 1;
+        fill-opacity: 1
       }
       .line2{
         fill: none;
         stroke: #000;
         stroke-width: 1;
+        fill-opacity: 1
       }
       .area2{
         fill: #666 !important;
+        fill-opacity: 0.5
       }
       .area{
-        fill: red
+        /*fill: red;*/
+        fill-opacity: 0.5
       }
       *{
         margin: 0;
@@ -71,11 +75,10 @@
     console.info('最小值：'+ d3.min(obj.prices) )
     console.info('最大值：'+ d3.max(obj.prices) )
 
-
     var width = document.body.clientWidth,
         height = 150,
         margin = 10,
-        marginLet = 20,
+        marginLet = 30,
         duration = 500,
         x = d3.scale.linear()
               .domain([0, width ])
@@ -89,6 +92,55 @@
                   .attr({ width: width, height: height })
                   .style("border-bottom",'1px solid #ccc')
 
+    //标尺
+    var xAxisScale = d3.scale.linear()
+        .domain([d3.min(obj.prices), d3.max(obj.prices) ])  // 输出
+        .range([0, width - 2*marginLet])   // 输入
+
+    var xAxis = d3.svg.axis().scale(xAxisScale).orient('bottom')
+
+    svg.append('g')
+        .attr({
+          class: 'axis xAxis',
+          transform: function () {
+            return 'translate('+ marginLet +', '+ (height-margin * 2) +')'
+          }
+        })
+        .call(xAxis)
+
+    var yAxisScale = d3.scale.linear()
+      .domain([0, d3.max(obj.asks) > d3.max(obj.bids) ? d3.max(obj.asks) : d3.max(obj.bids)])
+      .range([margin, height - margin * 2])
+
+    var yAxis = d3.svg.axis().scale(yAxisScale).orient('left')
+
+    svg.append('g')
+      .attr({
+        class: 'axis yAxis',
+        transform: function() {
+          return 'translate('+marginLet+', 0)'
+        }
+      })
+      .call(yAxis)
+
+    d3.selectAll('g.yAxis g.tick')
+      .append('line')
+      .classed('grid-line', true)
+      .attr('x1', 0)
+      .attr('y1', 0)
+      .attr('x2', width - marginLet*2)
+      .attr('y2', 0)
+
+    d3.selectAll('g.xAxis g.tick')
+      .append('line')
+      .classed('grid-line', true)
+      .attr('x1', 0)
+      .attr('y1', 0)
+      .attr('x2', 0)
+      .attr('y2', - (height - 2*margin))
+
+
+//    深度图
 
     var scale_x = d3.scale.linear()
         .domain([d3.min(obj.prices), d3.max(obj.prices) ])// 输出
@@ -100,6 +152,7 @@
 
     var line = d3.svg.line()
                 .x(function (d, i) {
+                  console.info(scale_x(obj.prices[i]))
                   return scale_x(obj.prices[i])
                 })
                 .y(function (d) {
@@ -115,7 +168,7 @@
                 return scale_y(d)
               })
 
-    svg.selectAll('path.line')
+    svg.append('g').selectAll('path.line')
         .data([obj.asks])
         .enter()
         .append('path')
@@ -123,20 +176,20 @@
         .attr('d', function(d) { return line(d) })
 
 
-    svg.selectAll('path.line2')
+    svg.append('g').selectAll('path.line2')
       .data([obj.bids])
       .enter()
       .append('path').attr('class', 'line2')
       .attr('d', function(d) {return line(d)})
 
-    svg.selectAll("path.area")
+    svg.append('g').selectAll("path.area")
         .data([obj.asks])
         .enter()
         .append("path")
         .attr("class", "area")
         .attr('d', function(d) { return area(d) })
 
-    svg.selectAll('path.area2')
+    svg.append('g').selectAll('path.area2')
         .data([obj.bids])
         .enter()
         .append('path')
@@ -146,21 +199,6 @@
         })
 
 
-      //标尺
-      var xAxisScale = d3.scale.linear()
-          .domain([d3.min(obj.prices), d3.max(obj.prices) ])  // 输出
-          .range([0, width - 2*marginLet])   // 输入
-
-      var xAxis = d3.svg.axis().scale(xAxisScale).orient('bottom')
-
-      svg.append('g')
-          .attr({
-            class: 'axis',
-            transform: function () {
-              return 'translate('+ marginLet +', '+ (height-margin * 2) +')'
-            }
-          })
-          .call(xAxis)
 
 </script>
 
