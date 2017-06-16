@@ -8,6 +8,9 @@
     <link rel="stylesheet" type="text/css" href="../../css/styles.css"/>
     <script type="text/javascript" src="../../lib/d3.js"></script>
     <style>
+      svg{
+        margin-top: 50px;
+      }
       .line{
         stroke-width: 1;
         fill-opacity: 1
@@ -18,13 +21,15 @@
         stroke-width: 1;
         fill-opacity: 1
       }
+      .axis .grid-line{
+        stroke-opacity: .1;
+      }
       .area2{
-        fill: #666 !important;
-        fill-opacity: 0.5
+        fill-opacity: 0.3
       }
       .area{
         /*fill: red;*/
-        fill-opacity: 0.5
+        fill-opacity: 0.3
       }
       *{
         margin: 0;
@@ -41,7 +46,7 @@
         key: 'orders',
         data: {
           bids:[{'200.01':'0'},{'199.00':'0.0000'},{'198.00':'3.0000'},{'197.00':'4.0000'},{'196.00':'5.0000'},{'195.00':'600.0000'},{'194.00':'7.0000'},{'193.00':'8.0000'},{'192.00':'9.0000'},{'191.00':'10.0000'},{'190.00':'11.0000'},{'189.00':'12.0000'},{'188.00':'13.0000'},{'187.00':'14.0000'},{'186.00':'15.0000'},{'185.00':'16.0000'},{'184.00':'17.0000'},{'183.00':'18.0000'},{'182.00':'19.0000'},{'181.00':'20.0000'},{'180.00':'21.0000'}],
-          asks:[{'201.01':'0'},{'202.00':'50.0000'},{'203.00':'22.0000'},{'204.00':'23.0000'},{'205.00':'24.0000'},{'206.00':'25.0000'},{'207.00':'26.0000'},{'208.00':'27.0000'},{'209.00':'28.0000'},{'210.00':'29.0000'},{'211.00':'30.0000'},{'212.00':'31.0000'},{'213.00':'32.0000'},{'214.00':'33.0000'},{'215.00':'34.0000'},{'216.00':'35.0000'},{'217.00':'36.0000'},{'218.00':'37.0000'},{'219.00':'38.0000'},{'220.00':'39.0000'}]
+          asks:[{'201.01':'100'},{'202.00':'80.0000'},{'203.00':'202.0000'},{'204.00':'23.0000'},{'205.00':'24.0000'},{'206.00':'25.0000'},{'207.00':'26.0000'},{'208.00':'27.0000'},{'209.00':'28.0000'},{'210.00':'29.0000'},{'211.00':'30.0000'},{'212.00':'31.0000'},{'213.00':'32.0000'},{'214.00':'33.0000'},{'215.00':'34.0000'},{'216.00':'35.0000'},{'217.00':'36.0000'},{'218.00':'37.0000'},{'219.00':'38.0000'},{'220.00':'39.0000'}]
         }
       }
     //范围
@@ -50,7 +55,13 @@
     var obj = {
       prices: [],
       asks: [],
-      bids: []
+      asksX: [],
+      bids: [],
+      bidsX: [],
+      ruler: {
+        x: [],
+        y: []
+      }
     }
 
     var num = 0;
@@ -60,7 +71,7 @@
       obj.prices.push(price)
       num += volume
       obj.bids.unshift(num)
-      obj.asks.push(0)
+      obj.bidsX.unshift(price)
     })
     num = 0;
     asks.map(function (item) {
@@ -69,7 +80,7 @@
       obj.prices.push(price)
       num += volume
       obj.asks.push(num)
-      obj.bids.push(0)
+      obj.asksX.push(price)
     })
     console.info(obj)
     console.info('最小值：'+ d3.min(obj.prices) )
@@ -79,6 +90,7 @@
         height = 150,
         margin = 10,
         marginLet = 30,
+        marginRight = 10,
         duration = 500,
         x = d3.scale.linear()
               .domain([0, width ])
@@ -141,7 +153,6 @@
 
 
 //    深度图
-
     var scale_x = d3.scale.linear()
         .domain([d3.min(obj.prices), d3.max(obj.prices) ])// 输出
         .range([marginLet, width-marginLet])   // 输入
@@ -152,11 +163,14 @@
 
     var line = d3.svg.line()
                 .x(function (d, i) {
-                  console.info(scale_x(obj.prices[i]))
-                  return scale_x(obj.prices[i])
+                  var x = scale_x(obj.prices[i])
+                  obj.ruler.x.push(x)
+                  return x
                 })
                 .y(function (d) {
-                  return scale_y(d)
+                  var y = scale_y(d)
+                  obj.ruler.y.push(y)
+                  return  y
                 })
 
     var area = d3.svg.area()
@@ -168,36 +182,159 @@
                 return scale_y(d)
               })
 
+    // 买入
+    svg.append('g').selectAll('path.line2')
+      .data([obj.bids])
+      .enter()
+      .append('path')
+      .attr('class', 'line2')
+      .style("stroke", '#04BE02')
+      .attr('d', function(d) {return line(d)})
+
+    // 卖出
     svg.append('g').selectAll('path.line')
         .data([obj.asks])
         .enter()
         .append('path')
         .attr('class', 'line')
-        .attr('d', function(d) { return line(d) })
+        .attr('d', function(d) { return d3.svg.line()
+                    .x(function (d, i) {
+                      var x = scale_x(obj.asksX[i])
+                      obj.ruler.x.push(x)
+                      return x
+                    })
+                    .y(function (d) {
+                      var y = scale_y(d)
+                      obj.ruler.y.push(y)
+                      return y
+                    })(d) })
 
-
-    svg.append('g').selectAll('path.line2')
-      .data([obj.bids])
-      .enter()
-      .append('path').attr('class', 'line2')
-      .attr('d', function(d) {return line(d)})
-
-    svg.append('g').selectAll("path.area")
-        .data([obj.asks])
-        .enter()
-        .append("path")
-        .attr("class", "area")
-        .attr('d', function(d) { return area(d) })
-
+    // 买入
     svg.append('g').selectAll('path.area2')
         .data([obj.bids])
         .enter()
         .append('path')
         .attr({
           class: 'area area2',
+          style: 'fill: #04BE02',
           d: function(d) {return  area(d)}
         })
+    // 卖出
+    svg.append('g').selectAll("path.area")
+        .data([obj.asks])
+        .enter()
+        .append("path")
+        .attr("class", "area")
+        .attr('d', function(d) { return d3.svg.area()
+                  .x(function(d, i) {
+                    return scale_x(obj.asksX[i])
+                  })
+                  .y0(height - margin * 2)
+                  .y1(function(d) {
+                    return scale_y(d)
+                  })(d) })
 
+        d3.selectAll('g.xAxis g.tick')
+          .append('line')
+          .classed('grid-line', true)
+          .attr('x1', 0)
+          .attr('y1', 0)
+          .attr('x2', 0)
+          .attr('y2', - (height - 2*margin))
+
+// touchmove
+    svg.on('touchstart', touchStart)
+       .on('touchmove', touchMove)
+       .on('touchend', touchEnd)
+
+    var lineX
+    var spot
+
+    function touchStart () {
+      d3.event.preventDefault();
+
+      spot = svg.selectAll('circle.dot')
+                .data(d3.touches(svg.node()));
+
+      lineX = svg.selectAll('line.X')
+                .data(d3.touches(svg.node()));
+
+      spot.enter()
+          .append('circle')
+          .attr('class', 'dot')
+          .attr("cx", function(d) { return d[0]; })
+          .attr("cy", function(d) { return d[1]; })
+          .attr("r", 4.5);
+
+      lineX.enter()
+          .append('line')
+          .attr('class', 'grid-line X')
+          .style({
+            "stroke": '#000',
+            "stroke-width": '1px'
+          })
+          .attr({
+            x1: function(d) { return d[0] },
+            x2: function(d) { return d[0] },
+            y1: 0,
+            y2: height - margin * 2
+          })
+    }
+
+    function touchMove () {
+
+      console.clear()
+      svg.selectAll('line.X')
+        .data(d3.touches(svg.node()))
+        .attr({
+          x1: function(d) {
+            var d = renderStrokeX(d[0])
+            return d
+          },
+          x2: function(d) { return renderStrokeX(d[0]) },
+          y1: 0,
+          y2: height - margin * 2
+        })
+
+      // console.info(obj.ruler)
+
+      svg.selectAll('circle.dot')
+          .data(d3.touches(svg.node()))
+          .attr('class', 'dot')
+          .attr("cx", function(d) {
+            var x = d[0]
+            var difference = 0
+            var list = [3,4,5,61,2,4]
+            list = list.concat(obj.ruler.x)
+            // console.info(list.sort())
+            console.info(obj.ruler.x.sort())
+
+            return difference
+          })
+          .attr("cy", function(d) {
+            var y = d[1]
+
+            obj.ruler.x
+            var difference = y
+
+            return difference
+          })
+          .attr("r", 4.5);
+    }
+
+    function touchEnd() {
+      svg.selectAll('line.X').remove()
+      svg.selectAll('circle.dot').remove()
+    }
+
+    function renderStrokeX(d) {
+      if (d < marginLet) {
+        return marginLet
+      } else if (d > width - marginLet) {
+        return width - marginLet
+      }
+      return d
+    }
 
 
 </script>
